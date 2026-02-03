@@ -1,0 +1,618 @@
+﻿@page "/admin/dashboard"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<AdminRouteGuard>
+    <PageTitle>Panel de Administración</PageTitle>
+    <link href="css/horizontal-header.css" rel="stylesheet" />
+    <link href="css/admindashboard.css" rel="stylesheet" />
+
+    <!-- Header Horizontal -->
+    <header class="app-header">
+        <div class="app-header-content">
+            <a href="/" class="app-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                    <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+                </svg>
+                <strong>Billetera Digital - Panel Admin</strong>
+            </a>
+
+            <nav class="app-nav">
+                <a href="/admin/dashboard" class="nav-link-header active">Dashboard</a>
+                <button class="nav-link-header" @onclick="CerrarSesion" style="background: none; border: none;">Salir</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="admin-container">
+            <header class="admin-header">
+                <h1>Panel de Administración</h1>
+                <button class="btn-logout" @onclick="CerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <!-- Tabs de Navegación -->
+            <div class="tabs-container">
+                <button class="tab-button @(tabActiva == "billeteras" ? "active" : "")"
+                        @onclick="@(() => CambiarTab("billeteras"))">
+                    Billeteras
+                </button>
+                <button class="tab-button @(tabActiva == "monedas" ? "active" : "")"
+                        @onclick="@(() => CambiarTab("monedas"))">
+                    Monedas
+                </button>
+            </div>
+
+            <div class="admin-content">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3>Total Usuarios</h3>
+                            <p class="stat-number">@totalUsuarios</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💼</div>
+                        <div class="stat-info">
+                            <h3>Total Billeteras</h3>
+                            <p class="stat-number">@totalBilleteras</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <h3>Billeteras Admin</h3>
+                            <p class="stat-number">@billeterasAdmin</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <h3>Monedas Activas</h3>
+                            <p class="stat-number">@monedasActivas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido según tab activa -->
+                @if (tabActiva == "billeteras")
+                {
+                    <div class="section">
+                        <h2>Gestión de Billeteras</h2>
+
+                        @if (isLoadingBilleteras)
+                        {
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p>Cargando billeteras...</p>
+                            </div>
+                        }
+                        else if (billeteras != null && billeteras.Any())
+                        {
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Es Admin</th>
+                                            <th>Propietario</th>
+                                            <th>CUIL</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var billetera in billeteras)
+                                        {
+                                            <tr>
+                                                <td>@billetera.Id</td>
+                                                <td>@billetera.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <span class="badge @(billetera.BilleteraAdmin ? "badge-success" : "badge-secondary")">
+                                                        @(billetera.BilleteraAdmin ? "Sí" : "No")
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if (billetera.Usuario != null)
+                                                    {
+                                                        <strong>@billetera.Usuario.Nombre @billetera.Usuario.Apellido</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Sin usuario</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (billetera.Usuario != null)
+                                                    {
+                                                        @billetera.Usuario.CUIL
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">-</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (billetera.Usuario != null)
+                                                    {
+                                                        <span class="badge badge-info">Admin Principal</span>
+                                                        
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Sin acciones disponibles</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="no-data">No hay billeteras registradas</p>
+                        }
+                    </div>
+                }
+                else if (tabActiva == "monedas")
+                {
+                    <div class="section">
+                        <div class="section-header">
+                            <h2>Gestión de Monedas</h2>
+                            <button class="btn-add" @onclick="MostrarFormularioNuevaMoneda">
+                                ➕ Agregar Moneda
+                            </button>
+                        </div>
+
+                        @if (mostrarFormMoneda)
+                        {
+                            <div class="form-modal">
+                                <div class="form-modal-content">
+                                    <div class="form-modal-header">
+                                        <h3>@(monedaEditando != null ? "Editar Moneda" : "Nueva Moneda")</h3>
+                                        <button class="btn-close" @onclick="CerrarFormularioMoneda">✕</button>
+                                    </div>
+                                    <EditForm Model="@monedaForm" OnValidSubmit="GuardarMoneda">
+                                        <DataAnnotationsValidator />
+                                        <div class="form-group">
+                                            <label>Código ISO *</label>
+                                            <InputText @bind-Value="monedaForm.CodISO"
+                                                       class="form-control"
+                                                       placeholder="Ej: BTC, ETH, USDT"
+                                                       disabled="@(monedaEditando != null)" />
+                                            <ValidationMessage For="@(() => monedaForm.CodISO)" />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Nombre *</label>
+                                            <InputText @bind-Value="monedaForm.TipoMoneda"
+                                                       class="form-control"
+                                                       placeholder="Ej: Bitcoin, Ethereum" />
+                                            <ValidationMessage For="@(() => monedaForm.TipoMoneda)" />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Precio Base (USD) *</label>
+                                            <InputNumber @bind-Value="monedaForm.PrecioBase"
+                                                         class="form-control"
+                                                         placeholder="0.00" />
+                                            <ValidationMessage For="@(() => monedaForm.PrecioBase)" />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Comisión (%) *</label>
+                                            <InputNumber @bind-Value="monedaForm.ComisionPorcentaje"
+                                                         class="form-control"
+                                                         placeholder="5.00" />
+                                            <ValidationMessage For="@(() => monedaForm.ComisionPorcentaje)" />
+                                            <small class="form-text">Por defecto: 5%</small>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="checkbox-label">
+                                                <InputCheckbox @bind-Value="monedaForm.Habilitada" />
+                                                Moneda habilitada para transacciones
+                                            </label>
+                                        </div>
+
+                                        <div class="form-actions">
+                                            <button type="button" class="btn-secondary" @onclick="CerrarFormularioMoneda">
+                                                Cancelar
+                                            </button>
+                                            <button type="submit" class="btn-primary">
+                                                @(monedaEditando != null ? "Actualizar" : "Crear") Moneda
+                                            </button>
+                                        </div>
+                                    </EditForm>
+                                </div>
+                            </div>
+                        }
+
+                        @if (isLoadingMonedas)
+                        {
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p>Cargando monedas...</p>
+                            </div>
+                        }
+                        else if (monedas != null && monedas.Any())
+                        {
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Nombre</th>
+                                            <th>Precio Base (USD)</th>
+                                            <th>Comisión (%)</th>
+                                            <th>Estado</th>
+                                            <th>Última Actualización</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var moneda in monedas)
+                                        {
+                                            <tr class="@(!moneda.Habilitada ? "row-disabled" : "")">
+                                                <td><strong>@moneda.CodISO</strong></td>
+                                                <td>@moneda.TipoMoneda</td>
+                                                <td class="text-right">$@moneda.PrecioBase.ToString("N2")</td>
+                                                <td class="text-right">@moneda.ComisionPorcentaje.ToString("N2")%</td>
+                                                <td>
+                                                    <span class="badge @(moneda.Habilitada ? "badge-success" : "badge-secondary")">
+                                                        @(moneda.Habilitada ? "Activa" : "Inactiva")
+                                                    </span>
+                                                </td>
+                                                <td>@moneda.FechaActualizacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                                <td>
+                                                    <button class="btn-action btn-primary" @onclick="@(() => EditarMoneda(moneda))">
+                                                        ✏️ Editar
+                                                    </button>
+                                                    <button class="btn-action @(moneda.Habilitada ? "btn-warning" : "btn-success")"
+                                                            @onclick="@(() => CambiarEstadoMoneda(moneda))">
+                                                        @(moneda.Habilitada ? "🚫 Deshabilitar" : "✅ Habilitar")
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="no-data">No hay monedas registradas. Agrega una nueva moneda para comenzar.</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(mensaje))
+        {
+            <div class="toast @toastClass">
+                @mensaje
+            </div>
+        }
+    </div>
+    
+    <!-- Componente de Tutorial -->
+    <TutorialComponent>
+        <TutorialContent>
+            <h6><strong>Panel de Administración</strong></h6>
+            <p>Aquí podrá administrar los usuarios y las monedas del sistema.</p>
+            <p>Para continuar, diríjase a la pestaña “Monedas” y cree la siguiente moneda (procure escribir los datos exactamente como se muestran):</p>
+            <p>
+                Nombre: Dolar
+                <br />
+                Código ISO: USD
+                <br />
+                Precio Base: 1
+            </p>
+            <p>Luego de crear estas monedas, podrá agregar cualquier otra que desee.</p>
+            <p>Una vez finalizado este paso, ya puede volver al inicio para registrarse como usuario.</p>
+        </TutorialContent>
+    </TutorialComponent>
+
+</AdminRouteGuard>
+
+@code {
+    private List<BilleteraConUsuarioDTO>? billeteras;
+    private int totalUsuarios = 0;
+    private int totalBilleteras = 0;
+    private int billeterasAdmin = 0;
+    private bool isLoadingBilleteras = true;
+
+    private List<MonedaIdDTO>? monedas;
+    private int monedasActivas = 0;
+    private bool isLoadingMonedas = false;
+    private bool mostrarFormMoneda = false;
+    private MonedaDTO monedaForm = new MonedaDTO();
+    private MonedaIdDTO? monedaEditando = null;
+
+    private string tabActiva = "billeteras";
+    private string mensaje = string.Empty;
+    private string toastClass = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatosBilleteras();
+    }
+
+    private async Task CambiarTab(string tab)
+    {
+        tabActiva = tab;
+
+        if (tab == "monedas" && monedas == null)
+        {
+            await CargarMonedas();
+        }
+    }
+
+    private async Task CargarDatosBilleteras()
+    {
+        try
+        {
+            isLoadingBilleteras = true;
+
+            var billeterasResponse = await Http.GetFromJsonAsync<List<BilleteraResponseDTO>>("api/Billeteras");
+            var usuariosResponse = await Http.GetFromJsonAsync<List<UsuariosDTO>>("api/usuarios");
+
+            if (billeterasResponse != null && usuariosResponse != null)
+            {
+                billeteras = billeterasResponse.Select(b => new BilleteraConUsuarioDTO
+                    {
+                        Id = b.Id,
+                        FechaCreacion = b.FechaCreacion,
+                        BilleteraAdmin = b.BilleteraAdmin,
+                        Usuario = usuariosResponse.FirstOrDefault(u => u.BilleteraId == b.Id)
+                    }).ToList();
+
+                totalBilleteras = billeteras.Count;
+                billeterasAdmin = billeteras.Count(b => b.BilleteraAdmin);
+                totalUsuarios = usuariosResponse.Count;
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje($"Error al cargar billeteras: {ex.Message}", false);
+            Console.WriteLine($"Error completo: {ex}");
+        }
+        finally
+        {
+            isLoadingBilleteras = false;
+        }
+    }
+
+    private void VerDetalle(int id)
+    {
+        MostrarMensaje($"Función Ver Detalle para billetera ID: {id} - Por implementar", true);
+    }
+
+    private async Task ConvertirAdmin(int id)
+    {
+        try
+        {
+            var confirmar = await JSRuntime.InvokeAsync<bool>("confirm",
+                "¿Está seguro de convertir esta billetera a Admin? Esta acción permitirá al usuario acceder a funciones administrativas.");
+
+            if (confirmar)
+            {
+                var updateDTO = new BilleteraUpdateDTO { BilleteraAdmin = true };
+                var response = await Http.PutAsJsonAsync($"api/Billeteras/{id}", updateDTO);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarMensaje("Billetera actualizada a Admin exitosamente", true);
+                    await CargarDatosBilleteras();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MostrarMensaje($"Error al actualizar billetera: {error}", false);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje($"Error: {ex.Message}", false);
+        }
+    }
+
+    private async Task EliminarBilletera(int id)
+    {
+        try
+        {
+            var billetera = billeteras?.FirstOrDefault(b => b.Id == id);
+            var nombreUsuario = billetera?.Usuario != null
+                ? $"{billetera.Usuario.Nombre} {billetera.Usuario.Apellido}"
+                : "este usuario";
+
+            var confirmar = await JSRuntime.InvokeAsync<bool>("confirm",
+                $" ADVERTENCIA: ¿Está seguro de eliminar la billetera de {nombreUsuario}? Esta acción NO se puede deshacer.");
+
+            if (confirmar)
+            {
+                var response = await Http.DeleteAsync($"api/Billeteras/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarMensaje("Billetera eliminada exitosamente", true);
+                    await CargarDatosBilleteras();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MostrarMensaje($"Error al eliminar billetera: {error}", false);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje($"Error: {ex.Message}", false);
+        }
+    }
+
+    private async Task CargarMonedas()
+    {
+        try
+        {
+            isLoadingMonedas = true;
+            monedas = await Http.GetFromJsonAsync<List<MonedaIdDTO>>("api/Monedas");
+
+            if (monedas != null)
+            {
+                monedasActivas = monedas.Count(m => m.Habilitada);
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje($"Error al cargar monedas: {ex.Message}", false);
+            Console.WriteLine($"Error completo: {ex}");
+        }
+        finally
+        {
+            isLoadingMonedas = false;
+        }
+    }
+
+    private void MostrarFormularioNuevaMoneda()
+    {
+        monedaForm = new MonedaDTO
+            {
+                Habilitada = true,
+                ComisionPorcentaje = 5.00M
+            };
+        monedaEditando = null;
+        mostrarFormMoneda = true;
+    }
+
+    private void EditarMoneda(MonedaIdDTO moneda)
+    {
+        monedaEditando = moneda;
+        monedaForm = new MonedaDTO
+            {
+                CodISO = moneda.CodISO,
+                TipoMoneda = moneda.TipoMoneda,
+                PrecioBase = moneda.PrecioBase,
+                ComisionPorcentaje = moneda.ComisionPorcentaje,
+                Habilitada = moneda.Habilitada
+            };
+        mostrarFormMoneda = true;
+    }
+
+    private void CerrarFormularioMoneda()
+    {
+        mostrarFormMoneda = false;
+        monedaEditando = null;
+        monedaForm = new MonedaDTO();
+    }
+
+    private async Task GuardarMoneda()
+    {
+        try
+        {
+            HttpResponseMessage response;
+
+            if (monedaEditando != null)
+            {
+                response = await Http.PutAsJsonAsync($"api/Monedas/{monedaEditando.CodISO}", monedaForm);
+            }
+            else
+            {
+                response = await Http.PostAsJsonAsync("api/Monedas", monedaForm);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                MostrarMensaje(monedaEditando != null ? "Moneda actualizada exitosamente" : "Moneda creada exitosamente", true);
+                CerrarFormularioMoneda();
+                await CargarMonedas();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                MostrarMensaje($"Error: {error}", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje($"Error al guardar moneda: {ex.Message}", false);
+        }
+    }
+
+    private async Task CambiarEstadoMoneda(MonedaIdDTO moneda)
+    {
+        try
+        {
+            var accion = moneda.Habilitada ? "deshabilitar" : "habilitar";
+            var confirmar = await JSRuntime.InvokeAsync<bool>("confirm",
+                $"¿Está seguro de {accion} la moneda {moneda.TipoMoneda} ({moneda.CodISO})?");
+
+            if (confirmar)
+            {
+                var updateDTO = new MonedaDTO
+                    {
+                        CodISO = moneda.CodISO,
+                        TipoMoneda = moneda.TipoMoneda,
+                        PrecioBase = moneda.PrecioBase,
+                        ComisionPorcentaje = moneda.ComisionPorcentaje,
+                        Habilitada = !moneda.Habilitada
+                    };
+
+                var response = await Http.PutAsJsonAsync($"api/Monedas/{moneda.CodISO}", updateDTO);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MostrarMensaje($"Moneda {accion}da exitosamente", true);
+                    await CargarMonedas();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MostrarMensaje($"Error: {error}", false);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MostrarMensaje($"Error: {ex.Message}", false);
+        }
+    }
+
+    private async Task CerrarSesion()
+    {
+        await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "isAdmin");
+        await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "adminLoginTime");
+        Navigation.NavigateTo("/", true);
+    }
+
+    private async void MostrarMensaje(string msg, bool esExito)
+    {
+        mensaje = msg;
+        toastClass = esExito ? "toast-success" : "toast-error";
+        StateHasChanged();
+
+        await Task.Delay(3000);
+        mensaje = string.Empty;
+        StateHasChanged();
+    }
+
+    private class BilleteraConUsuarioDTO
+    {
+        public int Id { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public bool BilleteraAdmin { get; set; }
+        public UsuariosDTO? Usuario { get; set; }
+    }
+}

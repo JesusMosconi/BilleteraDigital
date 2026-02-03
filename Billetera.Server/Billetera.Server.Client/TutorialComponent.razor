@@ -1,0 +1,204 @@
+﻿@inject IJSRuntime JS
+
+<div class="tutorial-container">
+    <!-- Botón del foquito flotante -->
+    <button class="tutorial-bulb-btn @(showTutorial ? "active" : "")"
+            @onclick="ToggleTutorial"
+            title="Ver tutorial">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z" />
+        </svg>
+    </button>
+
+    <!-- Panel de tutorial desplegable -->
+    @if (showTutorial)
+    {
+        <div class="tutorial-panel @(showTutorial ? "show" : "")">
+            <div class="tutorial-header">
+                <h5>💡 Tutorial</h5>
+                <button class="tutorial-close-btn" @onclick="CloseTutorial">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="tutorial-content">
+                @TutorialContent
+            </div>
+            <div class="tutorial-footer">
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .tutorial-container {
+        position: fixed;
+        z-index: 9999;
+    }
+
+    .tutorial-bulb-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #90EE90 0%, #98FB98 100%);
+        border: none;
+        box-shadow: 0 4px 15px rgba(144, 238, 144, 0.4);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+
+    .tutorial-bulb-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(144, 238, 144, 0.6);
+    }
+
+    .tutorial-bulb-btn.active {
+        background: linear-gradient(135deg, #7CCD7C 0%, #8FBC8F 100%);
+    }
+
+    .tutorial-bulb-btn svg {
+        color: white;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 4px 15px rgba(144, 238, 144, 0.4);
+        }
+        50% {
+            box-shadow: 0 4px 25px rgba(144, 238, 144, 0.7);
+        }
+    }
+
+    .tutorial-panel {
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        width: 350px;
+        max-width: calc(100vw - 60px);
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        max-height: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tutorial-panel.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: all;
+    }
+
+    .tutorial-header {
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #90EE90 0%, #98FB98 100%);
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
+
+    .tutorial-header h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .tutorial-close-btn {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        transition: background 0.2s ease;
+    }
+
+    .tutorial-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .tutorial-content {
+        padding: 20px;
+        overflow-y: auto;
+        flex: 1;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .tutorial-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .tutorial-footer .btn {
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .tutorial-footer .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    @@media (max-width: 768px) {
+        .tutorial-bulb-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+        }
+
+        .tutorial-panel {
+            bottom: 80px;
+            right: 20px;
+            width: calc(100vw - 40px);
+        }
+    }
+</style>
+
+@code {
+    [Parameter]
+    public RenderFragment? TutorialContent { get; set; }
+
+    private bool showTutorial = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Siempre mostrar el tutorial automáticamente al cargar
+        await Task.Delay(1000); // Pequeño delay para mejor UX
+        showTutorial = true;
+    }
+
+    private void ToggleTutorial()
+    {
+        showTutorial = !showTutorial;
+    }
+
+    private void CloseTutorial()
+    {
+        showTutorial = false;
+    }
+}
+

@@ -1,0 +1,413 @@
+﻿@page "/movimientos"
+@inject IAuthService authService
+@inject IHttpServicio http
+@inject NavigationManager Navigation
+
+<PageTitle>Mis Movimientos</PageTitle>
+<link href="css/horizontal-header.css" rel="stylesheet" />
+<link href="css/movimiento.css" rel="stylesheet" />
+
+<!-- Header Horizontal -->
+<header class="app-header">
+    <div class="app-header-content">
+        <a href="/" class="app-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+            </svg>
+            <strong>Billetera Digital - Movimientos</strong>
+        </a>
+
+        <nav class="app-nav">
+            <a href="/billetera" class="nav-link-header">Mi Billetera</a>
+            <a href="/movimientos" class="nav-link-header active">Movimientos</a>
+            <button class="nav-link-header" @onclick="CerrarSesion" style="background: none; border: none;">Cerrar Sesión</button>
+        </nav>
+    </div>
+</header>
+
+<div class="main-content">
+    @if (!estaAutenticado)
+    {
+        <p>Redirigiendo al login...</p>
+    }
+    else if (cargando)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Cargando movimientos...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="error-container">
+            <div class="alert alert-danger">
+                <h4>Error al cargar los movimientos</h4>
+                <p>@mensajeError</p>
+                <button class="btn btn-primary" @onclick="CargarDatos">Reintentar</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="movimientos-container">
+            <div class="header-section">
+                <h2>Mis Movimientos</h2>
+                <p class="text-muted">Historial completo de transacciones</p>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-section">
+                <div class="filtros-grid">
+                    <!-- Filtro por Rango de Fechas -->
+                    <div class="filtro-item">
+                        <label>Fecha Desde:</label>
+                        <input type="date" class="form-control" @bind="fechaDesde" @bind:event="oninput" @onchange="AplicarFiltros" />
+                    </div>
+                    <div class="filtro-item">
+                        <label>Fecha Hasta:</label>
+                        <input type="date" class="form-control" @bind="fechaHasta" @bind:event="oninput" @onchange="AplicarFiltros" />
+                    </div>
+
+                    <!-- Filtro por Tipo de Movimiento -->
+                    <div class="filtro-item">
+                        <label>Tipo de Movimiento:</label>
+                        <select class="form-control" @bind="tipoMovimientoSeleccionado" @bind:after="AplicarFiltros">
+                            <option value="">Todos</option>
+                            <option value="Depósito">Depósito</option>
+                            <option value="Extraccion">Extracción</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Compra">Compra</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Tipo de Cuenta (Moneda) -->
+                    <div class="filtro-item">
+                        <label>Moneda:</label>
+                        <select class="form-control" @bind="monedaSeleccionada" @bind:after="AplicarFiltros">
+                            <option value="">Todas</option>
+                            @foreach (var moneda in monedasDisponibles)
+                            {
+                                <option value="@moneda">@moneda</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Botón Limpiar Filtros -->
+                    <div class="filtro-item">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-secondary w-100" @onclick="LimpiarFiltros">
+                            Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div class="resultados-info">
+                <p>Mostrando <strong>@movimientosFiltrados.Count</strong> de <strong>@todosLosMovimientos.Count</strong> movimientos</p>
+            </div>
+
+            <!-- Tabla de Movimientos -->
+            @if (movimientosFiltrados.Any())
+            {
+                <div class="tabla-container">
+                    <table class="tabla-movimientos">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Moneda</th>
+                                <th class="text-right">Monto</th>
+                                <th class="text-right">Saldo Anterior</th>
+                                <th class="text-right">Saldo Nuevo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var mov in movimientosFiltrados)
+                            {
+                                <tr class="@ObtenerClaseFila(mov.TipoMovimientoNombre)">
+                                    <td class="fecha-col">@mov.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="badge-tipo @ObtenerClaseBadge(mov.TipoMovimientoNombre)">
+                                            @mov.TipoMovimientoNombre
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="moneda-badge">@mov.MonedaTipo</span>
+                                    </td>
+                                    <td class="text-right monto-col @ObtenerClaseMonto(mov.TipoMovimientoNombre)">
+                                        @FormatearMonto(mov.Monto, mov.TipoMovimientoNombre)
+                                    </td>
+                                    <td class="text-right">@mov.Saldo_Anterior.ToString("N2")</td>
+                                    <td class="text-right saldo-nuevo">@mov.Saldo_Nuevo.ToString("N2")</td>
+                                    <td class="descripcion-col">@LimpiarDescripcion(mov.Descripcion)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                //El SVG es un gráfico vectorial. Esos números definen las coordenadas para dibujar el ícono
+                //Aquí se muestra un mensaje cuando no hay movimientos que coincidan con los filtros aplicados.
+                <div class="sin-movimientos">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                        <!-- Dibuja un círculo -->
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                        <!-- Dibuja un signo más -->
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                    </svg>
+                    <h4>No hay movimientos</h4>
+                    <p>No se encontraron movimientos con los filtros aplicados</p>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Componente de Tutorial -->
+<TutorialComponent>
+    <TutorialContent>
+        <h6><strong>Historial de Movimientos</strong></h6>
+        <p>Aquí encontrará el registro de todos los movimientos realizados en sus cuentas.</p>
+        <p>Además, podrá utilizar filtros de búsqueda para encontrar operaciones específicas más fácilmente.</p>
+    </TutorialContent>
+</TutorialComponent>
+
+@code {
+    private List<MovimientoDTO> todosLosMovimientos = new();
+    private List<MovimientoDTO> movimientosFiltrados = new();
+    private List<string> monedasDisponibles = new();
+
+    private UsuariosDTO? usuarioActual;
+    private BilleteraConCuentasDTO? billetera;
+
+    private bool cargando = true;
+    private bool estaAutenticado = false;
+    private string? mensajeError;
+
+    private DateTime? fechaDesde;
+    private DateTime? fechaHasta;
+    private string tipoMovimientoSeleccionado = "";
+    private string monedaSeleccionada = "";
+
+    //Este metodo es para que al iniciar la pagina verifique si el usuario esta autenticado,
+    // y si lo esta le aparece la informacion de sus movimientos
+    protected override async Task OnInitializedAsync()
+    {
+        
+        try
+        {
+            estaAutenticado = await authService.EstaAutenticado();
+
+            if (!estaAutenticado)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            usuarioActual = await authService.GetUsuarioActual();
+
+            if (usuarioActual == null)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al inicializar: {ex.Message}";
+            cargando = false;
+        }
+    }
+
+    //Obtiene la billetera del usuario y sus movimientos. Luego extrae las monedas únicas disponibles.
+    private async Task CargarDatos()
+    {
+        try
+        {
+            cargando = true;
+            mensajeError = null;
+
+            if (usuarioActual == null)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            // Obtener la billetera del usuario
+            var respuestaBilletera = await http.Get<BilleteraConCuentasDTO>($"api/billeteras/usuario/{usuarioActual.Id}");
+
+            if (!respuestaBilletera.Error && respuestaBilletera.Respuesta != null)
+            {
+                billetera = respuestaBilletera.Respuesta;
+
+                // Obtener los movimientos de la billetera
+                var respuestaMovimientos = await http.Get<List<MovimientoDTO>>($"api/Movimiento/billetera/{billetera.Id}");
+
+                if (!respuestaMovimientos.Error && respuestaMovimientos.Respuesta != null)
+                {
+                    todosLosMovimientos = respuestaMovimientos.Respuesta;
+                    movimientosFiltrados = todosLosMovimientos;
+
+                    // Extraer las monedas únicas disponibles
+                    monedasDisponibles = todosLosMovimientos
+                        .Select(m => m.MonedaTipo)
+                        .Distinct()
+                        .OrderBy(m => m)
+                        .ToList();
+                }
+                else
+                {
+                    mensajeError = "No se pudieron cargar los movimientos.";
+                }
+            }
+            else
+            {
+                mensajeError = "No se pudo cargar la información de tu billetera.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    // Aplica los filtros seleccionados a la lista de movimientos
+    private void AplicarFiltros()
+    {
+        movimientosFiltrados = todosLosMovimientos;
+
+        // Filtro por fecha desde
+        if (fechaDesde.HasValue)
+        {
+            movimientosFiltrados = movimientosFiltrados
+                .Where(m => m.Fecha.Date >= fechaDesde.Value.Date)
+                .ToList();
+        }
+
+        // Filtro por fecha hasta
+        if (fechaHasta.HasValue)
+        {
+            movimientosFiltrados = movimientosFiltrados
+                .Where(m => m.Fecha.Date <= fechaHasta.Value.Date)
+                .ToList();
+        }
+
+        // Filtro por tipo de movimiento
+        if (!string.IsNullOrEmpty(tipoMovimientoSeleccionado))
+        {
+            movimientosFiltrados = movimientosFiltrados
+                .Where(m => m.TipoMovimientoNombre == tipoMovimientoSeleccionado)
+                .ToList();
+        }
+
+        // Filtro por moneda
+        if (!string.IsNullOrEmpty(monedaSeleccionada))
+        {
+            movimientosFiltrados = movimientosFiltrados
+                .Where(m => m.MonedaTipo == monedaSeleccionada)
+                .ToList();
+        }
+    }
+
+    private void LimpiarFiltros()
+    {
+        fechaDesde = null;
+        fechaHasta = null;
+        tipoMovimientoSeleccionado = "";
+        monedaSeleccionada = "";
+        movimientosFiltrados = todosLosMovimientos;
+    }
+
+    //Agrega borde de color según tipo de movimiento (Depósito, Extracción, Transferencia, Compra)
+    private string ObtenerClaseFila(string? tipoMovimiento)
+    {
+        return tipoMovimiento switch
+        {
+            "Depósito" => "fila-deposito",
+            "Extraccion" => "fila-extraccion",
+            "Transferencia" => "fila-transferencia",
+            "Compra" => "fila-compra",
+            _ => ""
+        };
+    }
+
+    //Colorea la etiqueta del tipo de movimiento según su tipo, es el recuadro que contiene el texto del tipo de movimiento
+    private string ObtenerClaseBadge(string? tipoMovimiento)
+    {
+        return tipoMovimiento switch
+        {
+            "Depósito" => "badge-deposito",
+            "Extraccion" => "badge-extraccion",
+            "Transferencia" => "badge-transferencia",
+            "Compra" => "badge-compra",
+            _ => ""
+        };
+    }
+
+    private string ObtenerClaseMonto(string? tipoMovimiento)
+    {
+        return tipoMovimiento switch
+        {
+            "Depósito" => "monto-positivo",
+            "Extraccion" => "monto-negativo",
+            "Transferencia" => "monto-neutral",
+            "Compra" => "monto-negativo", //Aca habria que fijarnos si lo dejamos como negativo
+          
+            _ => ""
+        };
+    }
+
+    //Formatea el monto con el signo correspondiente según el tipo de movimiento.
+    //Agrega + o - según el tipo de movimiento. Depósito es positivo, Extracción y Compra son negativos.
+    //Esto ayuda a visualizar rápidamente si el movimiento aumentó o disminuyó el saldo.
+    private string FormatearMonto(decimal monto, string? tipoMovimiento)
+    {
+        var signo = tipoMovimiento switch
+        {
+            "Depósito" => "+",
+            "Extraccion" => "-",
+            "Compra" => "-",
+            _ => ""
+        };
+
+        return $"{signo}${monto:N2}";
+    }
+
+    //Limpia la descripción eliminando todo lo que está entre paréntesis
+    private string LimpiarDescripcion(string descripcion)
+    {
+        if (string.IsNullOrEmpty(descripcion))
+            return descripcion;
+
+        // Buscar el índice del primer paréntesis de apertura
+        int indiceParentesis = descripcion.IndexOf('(');
+
+        if (indiceParentesis > 0)
+        {
+            // Retorna todo antes del paréntesis y elimina espacios extra al final
+            return descripcion.Substring(0, indiceParentesis).TrimEnd();
+        }
+
+        // Si no hay paréntesis, retorna la descripción tal cual
+        return descripcion;
+    }
+
+    private async Task CerrarSesion()
+    {
+        await authService.Logout();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}
+

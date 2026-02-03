@@ -1,0 +1,152 @@
+﻿@page "/sistema/acceso/panel"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Acceso al Sistema</PageTitle>
+
+<link href="css/loginadmin.css" rel="stylesheet" />
+<link href="css/horizontal-header.css" rel="stylesheet" />
+
+<!-- Header Horizontal -->
+<header class="app-header">
+    <div class="app-header-content">
+        <a href="/" class="app-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+            </svg>
+            <strong>Billetera Digital - Admin</strong>
+        </a>
+
+        <nav class="app-nav">
+            <a href="/" class="nav-link-header">Volver al Inicio</a>
+        </nav>
+    </div>
+</header>
+
+<div class="main-content">
+    <div class="login-container">
+        <div class="login-card">
+            <h3 class="login-title">Acceso Restringido</h3>
+
+            <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label for="password">Clave de Acceso</label>
+                    <InputText id="password"
+                               type="password"
+                               class="form-control"
+                               @bind-Value="loginModel.Password"
+                               placeholder="Ingrese la clave"
+                               autocomplete="off" />
+                    <ValidationMessage For="@(() => loginModel.Password)" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @errorMessage
+                    </div>
+                }
+
+                <button type="submit" class="btn-submit" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span>Verificando...</span>
+                    }
+                    else
+                    {
+                        <span>Acceder</span>
+                    }
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Componente de Tutorial -->
+<TutorialComponent>
+    <TutorialContent>
+        <h6><strong>Acceso Administrador</strong></h6>
+        <p>Para iniciar sesión como administrador, ingrese la siguiente contraseña: MiclaveAdmin2025</p>
+       @*  <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p> *@
+    </TutorialContent>
+</TutorialComponent>
+
+@code {
+    private UsuariosDTO.LoginAdmin loginModel = new();
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+
+            // Llamar a la API de login admin
+            var response = await Http.PostAsJsonAsync("api/usuarios/admin/login", loginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginAdminResponse>();
+
+                if (result != null && result.EsAdmin)
+                {
+                    // Guardar el estado de admin en sessionStorage
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "isAdmin", "true");
+                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "adminLoginTime", DateTime.Now.ToString("o")); // Formato ISO
+
+                    // Esperar un momento para asegurar que se guardó
+                    await Task.Delay(100);
+
+                    // Redirigir al panel de administración SIN forceLoad
+                    Navigation.NavigateTo("/admin/dashboard", false);
+                }
+                else
+                {
+                    errorMessage = "Acceso denegado";
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    errorMessage = "Clave de acceso incorrecta";
+                }
+                else
+                {
+                    errorMessage = "Error al procesar la solicitud";
+                }
+            }
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Error de conexión con el servidor";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error inesperado al iniciar sesión";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Clase para mapear la respuesta del API
+    private class LoginAdminResponse
+    {
+        public string Mensaje { get; set; } = string.Empty;
+        public bool EsAdmin { get; set; }
+    }
+}

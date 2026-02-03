@@ -1,0 +1,202 @@
+@page "/login"
+@using global::Billetera.Shared.DTOS
+@using global::Billetera.Servicio.ServiciosHttp
+@inject IAuthService authService
+@inject NavigationManager Navigation
+
+<link href="css/login.css" rel="stylesheet" />
+<link href="css/horizontal-header.css" rel="stylesheet" />
+
+<!-- Header Horizontal -->
+<header class="app-header">
+    <div class="app-header-content">
+        <a href="/" class="app-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+            </svg>
+            <strong>Billetera Digital</strong>
+        </a>
+
+        <nav class="app-nav">
+            <a href="/" class="nav-link-header">Inicio</a>
+            <a href="/login" class="nav-link-header active">Iniciar Sesión</a>
+            <a href="/registro" class="nav-link-header">Registrarse</a>
+        </nav>
+    </div>
+</header>
+
+<div class="main-content">
+    <div class="login-body">
+        <main class="form-signin">
+            <div class="login-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16" style="color: #E679C6;">
+                    <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z" />
+                </svg>
+            </div>
+
+            <h1 class="h3 mb-3 fw-normal">Iniciar Sesión</h1>
+
+            @if (!string.IsNullOrEmpty(mensajeError))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @mensajeError
+                </div>
+            }
+
+            <EditForm Model="usuario" OnValidSubmit="Grabar">
+                <DataAnnotationsValidator />
+
+                <div class="form-floating mb-2">
+                    <input type="text"
+                           class="form-control"
+                           id="floatingCuil"
+                           @bind="CuilFormateado"
+                           @bind:event="oninput"
+                           placeholder="XX-XXXXXXXX-X"
+                           maxlength="13"
+                           inputmode="numeric"
+                           required />
+                    <label for="floatingCuil">CUIL</label>
+                    <ValidationMessage For="@(() => usuario.CUIL)" />
+                </div>
+
+                <div class="form-floating mb-2">
+                    <input type="email"
+                           class="form-control"
+                           id="floatingEmail"
+                           @bind="usuario.Correo"
+                           placeholder="nombre@ejemplo.com"
+                           required />
+                    <label for="floatingEmail">Correo Electrónico</label>
+                    <ValidationMessage For="@(() => usuario.Correo)" />
+                </div>
+
+                <div class="form-floating mb-3 password-toggle">
+                    <input type="@tipoInputPassword"
+                           class="form-control"
+                           id="floatingPassword"
+                           @bind="usuario.Password"
+                           placeholder="Contraseña"
+                           required />
+                    <label for="floatingPassword">Contraseña</label>
+                    <button class="btn-eye" type="button" @onclick="TogglePasswordVisibility">
+                        @if (mostrarPassword)
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z" />
+                                <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z" />
+                                <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z" />
+                            </svg>
+                        }
+                    </button>
+                    <ValidationMessage For="@(() => usuario.Password)" />
+                </div>
+
+                <button class="btn btn-primary" type="submit">Iniciar Sesión</button>
+                <button class="btn btn-outline-secondary" type="button" @onclick="Cancelar">Volver Atrás</button>
+
+                <p class="mt-3 mb-3 text-muted text-center">
+                    ¿No tienes cuenta? <a href="/registro">Regístrate aquí</a>
+                </p>
+                <p class="text-muted">&copy; 2025 Billetera Digital</p>
+            </EditForm>
+        </main>
+    </div>
+</div>
+
+<!-- Componente de Tutorial -->
+<TutorialComponent>
+    <TutorialContent>
+        <h6><strong>Iniciar Sesión</strong></h6>
+        <p>Inicie sesión utilizando los datos que registró previamente.</p>
+        <p>Si aún no tiene una cuenta, regístrese primero desde la pestaña de <strong>Registro de Usuario.</strong></p>
+    </TutorialContent>
+</TutorialComponent>
+
+@code {
+    private UsuariosDTO.Login usuario = new();
+    private string? mensajeError;
+    private bool mostrarPassword = false;
+    private string tipoInputPassword => mostrarPassword ? "text" : "password";
+
+    private void TogglePasswordVisibility() => mostrarPassword = !mostrarPassword;
+
+    private string CuilFormateado
+    {
+        get => usuario.CUIL ?? string.Empty;
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                usuario.CUIL = string.Empty;
+                return;
+            }
+
+            var soloNumeros = new string(value.Where(char.IsDigit).ToArray());
+            if (soloNumeros.Length > 11)
+                soloNumeros = soloNumeros.Substring(0, 11);
+
+            if (soloNumeros.Length <= 2)
+            {
+                usuario.CUIL = soloNumeros;
+            }
+            else if (soloNumeros.Length <= 10)
+            {
+                usuario.CUIL = $"{soloNumeros.Substring(0, 2)}-{soloNumeros.Substring(2)}";
+            }
+            else
+            {
+                usuario.CUIL = $"{soloNumeros.Substring(0, 2)}-{soloNumeros.Substring(2, 8)}-{soloNumeros.Substring(10)}";
+            }
+        }
+    }
+
+    private async Task Grabar()
+    {
+        try
+        {
+            mensajeError = null;
+            await authService.Login(usuario);
+            Navigation.NavigateTo("/billetera", forceLoad: true);
+        }
+        catch (HttpRequestException ex)
+        {
+            var mensaje = ex.Message;
+
+            if (mensaje.Contains("\"mensaje\"") || mensaje.Contains("mensaje"))
+            {
+                var inicioMensaje = mensaje.IndexOf("mensaje");
+                if (inicioMensaje >= 0)
+                {
+                    var inicioCita = mensaje.IndexOf("\"", inicioMensaje + 10);
+                    var finCita = mensaje.IndexOf("\"", inicioCita + 1);
+
+                    if (finCita > inicioCita)
+                    {
+                        mensajeError = mensaje.Substring(inicioCita + 1, finCita - inicioCita - 1);
+                        return;
+                    }
+                }
+            }
+
+            mensajeError = mensaje.Contains("401") || mensaje.Contains("Unauthorized")
+                ? "CUIL o contraseña incorrectos"
+                : "Error al iniciar sesión";
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error: {ex.Message}";
+        }
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/");
+}

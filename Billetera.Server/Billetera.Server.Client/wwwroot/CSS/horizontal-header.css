@@ -1,0 +1,156 @@
+﻿/* Header horizontal mejorado */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: linear-gradient(135deg, #E679C6 0%, #D896C6 100%);
+    box-shadow: 0 2px 10px rgba(230, 121, 198, 0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+}
+
+.app-header-content {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+    .app-logo:hover {
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .app-logo svg {
+        margin-right: 12px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-link-header {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .nav-link-header:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .nav-link-header.active {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+/* Ajuste del contenido principal para no quedar detrás del header */
+.main-content {
+    margin-top: 70px;
+    min-height: calc(100vh - 70px);
+}
+
+/* Menú hamburguesa para móviles */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.mobile-nav {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-header {
+        padding: 0 15px;
+        height: 60px;
+    }
+
+    .main-content {
+        margin-top: 60px;
+    }
+
+    .app-logo {
+        font-size: 1.2rem;
+    }
+
+    .app-nav {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .mobile-nav {
+        display: none;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #E679C6 0%, #D896C6 100%);
+        box-shadow: 0 4px 10px rgba(230, 121, 198, 0.2);
+        padding: 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .mobile-nav.show {
+            display: flex;
+        }
+
+        .mobile-nav .nav-link-header {
+            width: 100%;
+            justify-content: center;
+        }
+}
+
+/* Animaciones suaves */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.app-header {
+    animation: slideDown 0.4s ease-out;
+}
