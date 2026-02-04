@@ -1126,7 +1126,7 @@
         font-weight: 600;
     }
 
-/* ========== RESPONSIVE (MANTENIDO + MEJORADO) ========== */
+/* ========== RESPONSIVE (MEJORADO PARA MÓVIL) ========== */
 
 /* ✅ Tablets en orientación landscape (landscape tablets y pequeños desktops) */
 @media (min-width: 769px) and (max-width: 991px) {
@@ -1135,8 +1135,12 @@
     }
 }
 
-/* ✅ Tablets en portrait y móviles grandes */
+/* ✅ Tablets en portrait y móviles grandes (768px y menos) */
 @media (max-width: 768px) {
+    .billetera-container {
+        padding: 15px;
+    }
+
     .saludo-section {
         padding: 30px 25px;
         border-radius: 16px;
@@ -1154,15 +1158,53 @@
         font-size: 1.25rem;
     }
 
-    /* ✅ En tablets: 1 columna para que se vean bien */
+    /* ✅ CAMBIO CRÍTICO: En móvil las cards van de 2 en 2 */
     .tipos-cuenta-lista {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
 
+    /* ✅ Cards más compactas en móvil */
     .tipo-cuenta-card {
+        padding: 16px;
+        min-height: 180px;
+    }
+
+    .tipo-cuenta-header strong {
+        font-size: 1rem;
+    }
+
+    .tipo-cuenta-card p {
+        font-size: 0.85rem;
+    }
+
+        .tipo-cuenta-card p:last-child {
+            font-size: 1.1rem;
+        }
+
+    /* ✅ CAMBIO CRÍTICO: Botones de operaciones en grid 2x2 */
+    .botones-operaciones {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .btn-operacion {
+        padding: 16px 12px;
+        font-size: 0.9rem;
+    }
+
+        .btn-operacion svg {
+            width: 24px;
+            height: 24px;
+        }
+
+    .operaciones-section {
         padding: 20px;
     }
+
+        .operaciones-section h4 {
+            font-size: 1.15rem;
+        }
 
     .no-cuentas-simple {
         padding: 40px 20px;
@@ -1185,14 +1227,6 @@
             width: 100%;
         }
 
-    .botones-operaciones {
-        grid-template-columns: 1fr;
-    }
-
-    .operaciones-section {
-        padding: 20px;
-    }
-
     .mensaje-seleccion {
         padding: 40px 20px;
     }
@@ -1211,29 +1245,98 @@
         padding: 10px 16px;
         font-size: 0.9rem;
     }
+
+    .check-seleccionado {
+        width: 30px;
+        height: 30px;
+        top: 8px;
+        right: 8px;
+    }
+
+        .check-seleccionado svg {
+            width: 16px;
+            height: 16px;
+        }
 }
 
-/* ✅ Móviles pequeños */
+/* ✅ Móviles pequeños (480px y menos) */
 @media (max-width: 480px) {
     .billetera-container {
-        padding: 15px;
+        padding: 12px;
     }
 
     .saludo-section {
-        padding: 25px 20px;
+        padding: 20px 16px;
     }
 
         .saludo-section h2 {
             font-size: 1.75rem;
         }
 
-    .tipo-cuenta-header strong {
+        .saludo-section .text-muted {
+            font-size: 0.95rem;
+        }
+
+    /* ✅ Mantener grid 2x2 en móviles pequeños */
+    .tipos-cuenta-lista {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .tipo-cuenta-card {
+        padding: 14px;
+        min-height: 170px;
+    }
+
+    .tipo-cuenta-header {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+        .tipo-cuenta-header strong {
+            font-size: 0.95rem;
+        }
+
+    .tipo-cuenta-icon {
+        width: 28px;
+        height: 28px;
         font-size: 1rem;
     }
 
-    .tipo-cuenta-card p:last-child {
-        font-size: 1.2rem;
+    .tipo-cuenta-card p {
+        font-size: 0.8rem;
+        margin: 8px 0;
     }
+
+        .tipo-cuenta-card p:last-child {
+            font-size: 1rem;
+            margin-top: 12px;
+        }
+
+    /* ✅ Botones de operaciones siguen en 2x2 */
+    .botones-operaciones {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .btn-operacion {
+        padding: 14px 10px;
+        font-size: 0.85rem;
+    }
+
+        .btn-operacion svg {
+            width: 22px;
+            height: 22px;
+        }
+
+    .operaciones-section {
+        padding: 16px;
+    }
+
+        .operaciones-section h4 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }
 
     .modal-content {
         padding: 20px;
@@ -1244,18 +1347,16 @@
         font-size: 0.9rem;
     }
 
-    .btn-operacion {
-        padding: 16px;
-    }
-
     .check-seleccionado {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
+        top: 6px;
+        right: 6px;
     }
 
         .check-seleccionado svg {
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
         }
 
     .crear-tipo-cuenta-panel {
@@ -1270,4 +1371,9 @@
             width: 100%;
             padding: 12px 24px;
         }
+
+    .fecha-creacion {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
 }

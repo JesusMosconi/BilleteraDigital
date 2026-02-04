@@ -22,11 +22,20 @@
             </a>
 
             <nav class="app-nav">
-                <a href="/admin/dashboard" class="nav-link-header active">Dashboard</a>
                 <button class="nav-link-header" @onclick="CerrarSesion" style="background: none; border: none;">Salir</button>
             </nav>
+
+            <button class="mobile-menu-btn" @onclick="ToggleMobileMenu">
+                ☰
+            </button>
         </div>
     </header>
+
+    <nav class="mobile-nav @(showMobileMenu ? "show" : "")">
+        <button class="nav-link-header" @onclick="CerrarSesion" style="background: none; border: none;">Salir</button>
+
+        <!-- Agregar los enlaces que correspondan a cada página -->
+    </nav>
 
     <div class="main-content">
         <div class="admin-container">
@@ -614,5 +623,12 @@
         public DateTime FechaCreacion { get; set; }
         public bool BilleteraAdmin { get; set; }
         public UsuariosDTO? Usuario { get; set; }
+    }
+
+    private bool showMobileMenu = false;
+
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
     }
 }

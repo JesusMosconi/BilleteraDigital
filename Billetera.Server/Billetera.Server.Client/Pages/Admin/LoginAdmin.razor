@@ -24,8 +24,16 @@
         <nav class="app-nav">
             <a href="/" class="nav-link-header">Volver al Inicio</a>
         </nav>
+        <button class="mobile-menu-btn" @onclick="ToggleMobileMenu">
+            ☰
+        </button>
     </div>
 </header>
+
+<nav class="mobile-nav @(showMobileMenu ? "show" : "")">
+    <a href="/" class="nav-link-header">Volver al Inicio</a>
+    <!-- Agregar los enlaces que correspondan a cada página -->
+</nav>
 
 <div class="main-content">
     <div class="login-container">
@@ -148,5 +156,12 @@
     {
         public string Mensaje { get; set; } = string.Empty;
         public bool EsAdmin { get; set; }
+    }
+
+    private bool showMobileMenu = false;
+
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
     }
 }

@@ -21,11 +21,20 @@
 
         <nav class="app-nav">
             <a href="/billetera" class="nav-link-header">Mi Billetera</a>
-            <a href="/movimientos" class="nav-link-header active">Movimientos</a>
             <button class="nav-link-header" @onclick="CerrarSesion" style="background: none; border: none;">Cerrar Sesión</button>
         </nav>
+
+        <button class="mobile-menu-btn" @onclick="ToggleMobileMenu">
+            ☰
+        </button>
     </div>
 </header>
+
+<nav class="mobile-nav @(showMobileMenu ? "show" : "")">
+    <a href="/billetera" class="nav-link-header">Mi Billetera</a>
+    <button class="nav-link-header" @onclick="CerrarSesion" style="background: none; border: none;">Cerrar Sesión</button>
+    <!-- Agregar los enlaces que correspondan a cada página -->
+</nav>
 
 <div class="main-content">
     @if (!estaAutenticado)
@@ -408,6 +417,13 @@
     {
         await authService.Logout();
         Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    private bool showMobileMenu = false;
+
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
     }
 }
 

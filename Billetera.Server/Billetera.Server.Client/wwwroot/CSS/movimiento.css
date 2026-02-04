@@ -102,13 +102,13 @@
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    overflow-x: auto; /* esto en horizontal para los celus*/
+    overflow-x: auto;
 }
 
 .tabla-movimientos {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1000px; /* Ancho mínimo para que se vea bien */
+    min-width: 1000px;
 }
 
     .tabla-movimientos thead {
@@ -155,16 +155,16 @@
     font-weight: 500;
     color: #6c757d;
     white-space: nowrap;
-    min-width: 140px; /* Ancho fijo para fecha */
+    min-width: 140px;
 }
 
 /* DESCRIPCIÓN */
 .descripcion-col {
-    min-width: 250px; /*  Ancho mínimo para descripción */
-    max-width: 400px; /*  Máximo en pantallas grandes */
-    word-wrap: break-word; /*  Rompe palabras largas */
-    white-space: normal; /*  Permite múltiples líneas */
-    line-height: 1.5; /*  Espaciado entre líneas */
+    min-width: 250px;
+    max-width: 400px;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.5;
 }
 
 .monto-col {
@@ -299,7 +299,6 @@
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
-    margin-bottom: 16px;
 }
 
 @keyframes spin {
@@ -348,26 +347,27 @@
             transform: translateY(-2px);
         }
 
-/* ========== RESPONSIVE ========== */
+/* ========== RESPONSIVE MEJORADO ========== */
 
-/*  Pantallas grandes */
+/* ✅ Pantallas grandes (1200px+) */
 @media (min-width: 1200px) {
     .tabla-movimientos {
-        min-width: 100%; /* Usa todo el ancho disponible */
+        min-width: 100%;
     }
 
     .descripcion-col {
-        max-width: 500px; /* Más ancho en pantallas grandes */
+        max-width: 500px;
     }
 }
 
-@media (max-width: 992px) {
+/* ✅ Tablets landscape (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
     .filtros-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
     .tabla-movimientos {
-        min-width: 900px; /* Tabla horizontal */
+        min-width: 900px;
     }
 
     .descripcion-col {
@@ -376,56 +376,311 @@
     }
 }
 
-@media (max-width: 768px) {
+/* ✅ Tablets portrait (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
     .movimientos-container {
-        padding: 15px;
+        padding: 18px;
     }
 
     .header-section h2 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 
     .filtros-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filtros-section {
+        padding: 20px;
+    }
+
+    /* Tabla con scroll horizontal pero más compacta */
+    .tabla-movimientos {
+        min-width: 850px;
+    }
+
+        .tabla-movimientos th,
+        .tabla-movimientos td {
+            padding: 14px 10px;
+            font-size: 0.9rem;
+        }
+
+    .descripcion-col {
+        min-width: 180px;
+        max-width: 250px;
+        font-size: 0.88rem;
+    }
+
+    .fecha-col {
+        min-width: 130px;
+    }
+
+    .badge-tipo {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ✅ MÓVILES (hasta 767px) - MEJORAS CRÍTICAS */
+@media (max-width: 767px) {
+    .movimientos-container {
+        padding: 12px;
+    }
+
+    .header-section {
+        margin-bottom: 20px;
+    }
+
+        .header-section h2 {
+            font-size: 1.5rem;
+        }
+
+        .header-section .text-muted {
+            font-size: 0.9rem;
+        }
+
+    /* Filtros en columna única */
+    .filtros-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .filtros-section {
         padding: 16px;
+        border-radius: 10px;
     }
 
-    /* Para los celus descripción más compacta pero legible */
-    .descripcion-col {
-        min-width: 180px;
-        max-width: 250px;
+    .filtro-item label {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+
+    .filtro-item .form-control {
+        padding: 8px 10px;
         font-size: 0.9rem;
     }
-}
 
-@media (max-width: 576px) {
-    .tabla-movimientos th,
-    .tabla-movimientos td {
-        padding: 12px 8px;
+    .btn-secondary {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Resultados info más compacto */
+    .resultados-info {
+        padding: 10px 12px;
         font-size: 0.85rem;
     }
 
-    .badge-tipo {
-        padding: 4px 8px;
+        .resultados-info p {
+            font-size: 0.85rem;
+        }
+
+    /* ✅ TABLA MÓVIL - MÁS COMPACTA Y LEGIBLE */
+    .tabla-container {
+        border-radius: 10px;
+        /* Scroll horizontal suave */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tabla-movimientos {
+        /* Ancho mínimo reducido para móvil */
+        min-width: 700px;
+        font-size: 0.8rem;
+    }
+
+        /* Encabezados más compactos */
+        .tabla-movimientos th {
+            padding: 10px 6px;
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
+        }
+
+        /* Celdas más compactas */
+        .tabla-movimientos td {
+            padding: 10px 6px;
+            font-size: 0.8rem;
+        }
+
+    /* Fecha más compacta */
+    .fecha-col {
+        min-width: 100px;
         font-size: 0.75rem;
     }
 
-    .sin-movimientos {
-        padding: 60px 20px;
+    /* Badges más pequeños */
+    .badge-tipo {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+        letter-spacing: 0.3px;
     }
 
-    /* Descripción aún más compacta en móviles pequeños */
+    /* Moneda badge más pequeño */
+    .moneda-badge {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+    }
+
+    /* Descripción compacta pero legible */
     .descripcion-col {
         min-width: 150px;
         max-width: 200px;
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+
+    /* Montos más compactos */
+    .monto-col {
+        font-size: 0.85rem;
+        min-width: 80px;
+    }
+
+    /* Saldos más compactos */
+    .saldo-nuevo {
+        font-size: 0.8rem;
+    }
+
+    .tabla-movimientos tbody tr {
+        border-left-width: 3px;
+    }
+
+    /* Sin movimientos móvil */
+    .sin-movimientos {
+        padding: 50px 20px;
+    }
+
+        .sin-movimientos svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .sin-movimientos h4 {
+            font-size: 1.2rem;
+        }
+
+        .sin-movimientos p {
+            font-size: 0.9rem;
+        }
+
+    /* Loading móvil */
+    .loading-container {
+        min-height: 300px;
+    }
+
+    .spinner {
+        width: 35px;
+        height: 35px;
+        border-width: 3px;
+    }
+}
+
+/* ✅ MÓVILES PEQUEÑOS (hasta 480px) */
+@media (max-width: 480px) {
+    .movimientos-container {
+        padding: 10px;
+    }
+
+    .header-section h2 {
+        font-size: 1.3rem;
+    }
+
+    .header-section .text-muted {
         font-size: 0.85rem;
     }
 
-    .fecha-col {
-        min-width: 120px;
-        font-size: 0.85rem;
+    .filtros-section {
+        padding: 14px;
     }
+
+    /* Tabla aún más compacta */
+    .tabla-movimientos {
+        min-width: 650px;
+        font-size: 0.75rem;
+    }
+
+        .tabla-movimientos th {
+            padding: 8px 5px;
+            font-size: 0.7rem;
+        }
+
+        .tabla-movimientos td {
+            padding: 8px 5px;
+            font-size: 0.75rem;
+        }
+
+    .fecha-col {
+        min-width: 90px;
+        font-size: 0.7rem;
+    }
+
+    .badge-tipo {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+    }
+
+    .moneda-badge {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+    }
+
+    .descripcion-col {
+        min-width: 130px;
+        max-width: 180px;
+        font-size: 0.73rem;
+        line-height: 1.35;
+    }
+
+    .monto-col {
+        font-size: 0.78rem;
+        min-width: 70px;
+    }
+
+    .saldo-nuevo {
+        font-size: 0.75rem;
+    }
+
+    .resultados-info {
+        padding: 8px 10px;
+    }
+
+        .resultados-info p {
+            font-size: 0.8rem;
+        }
+
+    .sin-movimientos {
+        padding: 40px 16px;
+    }
+
+        .sin-movimientos svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .sin-movimientos h4 {
+            font-size: 1.1rem;
+        }
+
+        .sin-movimientos p {
+            font-size: 0.85rem;
+        }
+}
+
+/* ✅ Mejora del scroll horizontal en móvil */
+@media (max-width: 767px) {
+    .tabla-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .tabla-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .tabla-container::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 10px;
+    }
+
+        .tabla-container::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
+        }
 }

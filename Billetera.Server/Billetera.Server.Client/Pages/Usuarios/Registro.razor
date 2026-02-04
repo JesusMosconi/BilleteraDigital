@@ -31,10 +31,19 @@
         <nav class="app-nav">
             <a href="/" class="nav-link-header">Inicio</a>
             <a href="/login" class="nav-link-header">Iniciar Sesión</a>
-            <a href="/registro" class="nav-link-header active">Registrarse</a>
         </nav>
+
+        <button class="mobile-menu-btn" @onclick="ToggleMobileMenu">
+            ☰
+        </button>
+
     </div>
 </header>
+
+<nav class="mobile-nav @(showMobileMenu ? "show" : "")">
+    <a href="/" class="nav-link-header">Inicio</a>
+    <a href="/login" class="nav-link-header">Iniciar Sesión</a>
+</nav>
 
 <div class="main-content">
     <div class="registration-body">
@@ -658,5 +667,12 @@
     private void Cancelar()
     {
         navHttp.NavigateTo("/");
+    }
+
+    private bool showMobileMenu = false;
+
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
     }
 }

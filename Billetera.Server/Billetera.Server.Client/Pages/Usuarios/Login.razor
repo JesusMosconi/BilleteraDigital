@@ -21,11 +21,20 @@
 
         <nav class="app-nav">
             <a href="/" class="nav-link-header">Inicio</a>
-            <a href="/login" class="nav-link-header active">Iniciar Sesión</a>
             <a href="/registro" class="nav-link-header">Registrarse</a>
         </nav>
+
+        <button class="mobile-menu-btn" @onclick="ToggleMobileMenu">
+            ☰
+        </button>
     </div>
 </header>
+
+<nav class="mobile-nav @(showMobileMenu ? "show" : "")">
+    <a href="/" class="nav-link-header">Inicio</a>
+    <a href="/registro" class="nav-link-header">Registrarse</a>
+    <!-- Agregar los enlaces que correspondan a cada página -->
+</nav>
 
 <div class="main-content">
     <div class="login-body">
@@ -199,4 +208,11 @@
     }
 
     private void Cancelar() => Navigation.NavigateTo("/");
+
+    private bool showMobileMenu = false;
+
+    private void ToggleMobileMenu()
+    {
+        showMobileMenu = !showMobileMenu;
+    }
 }
