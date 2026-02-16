@@ -1,8 +1,34 @@
-﻿/* Contenedor principal */
+﻿/* ========== FIX GLOBAL PARA OVERFLOW ========== */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+.main-content {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+}
+
+.page-wrapper {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Reset de box-sizing para todo */
+* {
+    box-sizing: border-box;
+}
+
+/* Contenedor principal */
 .movimientos-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    overflow-x: hidden; /* 👈 CRÍTICO */
+    width: calc(100vw - 40px); /* 👈 NUEVO - Resta el padding */
+    max-width: 100%; /* 👈 NUEVO */
 }
 
 /* Header */
@@ -29,6 +55,9 @@
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 24px;
+    max-width: 100%; /* 👈 AGREGAR */
+    box-sizing: border-box; /* 👈 AGREGAR */
+    overflow: hidden; /* 👈 AGREGAR */
 }
 
 .filtros-grid {
@@ -36,6 +65,8 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
     align-items: end;
+    width: 100%; /* 👈 AGREGAR */
+    box-sizing: border-box; /* 👈 AGREGAR */
 }
 
 .filtro-item label {
@@ -84,6 +115,8 @@
     padding: 12px 16px;
     background: #f8f9fa;
     border-radius: 8px;
+    max-width: 100%; /* 👈 AGREGAR */
+    box-sizing: border-box; /* 👈 AGREGAR */
 }
 
     .resultados-info p {
@@ -103,12 +136,33 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     overflow-x: auto;
+    max-width: 100%; /* 👈 CRÍTICO */
+    width: 100%; /* 👈 CRÍTICO */
+    display: block; /* 👈 NUEVO */
 }
 
+    .tabla-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .tabla-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .tabla-container::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 10px;
+    }
+
+        .tabla-container::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
+        }
+
 .tabla-movimientos {
-    width: 100%;
+    width: 1200px; /* 👈 CAMBIAR de width: 100% a ANCHO FIJO */
     border-collapse: collapse;
-    min-width: 1000px;
+    display: table; /* 👈 NUEVO */
 }
 
     .tabla-movimientos thead {
@@ -352,7 +406,7 @@
 /* ✅ Pantallas grandes (1200px+) */
 @media (min-width: 1200px) {
     .tabla-movimientos {
-        min-width: 100%;
+        width: 1200px; /* 👈 Ancho fijo */
     }
 
     .descripcion-col {
@@ -365,9 +419,12 @@
     .filtros-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
+    .movimientos-container {
+        padding: 18px;
+        width: calc(100vw - 36px); /* 👈 AGREGAR */
+    }
     .tabla-movimientos {
-        min-width: 900px;
+        width: 1100px; /* 👈 Ancho fijo */
     }
 
     .descripcion-col {
@@ -380,6 +437,7 @@
 @media (min-width: 768px) and (max-width: 991px) {
     .movimientos-container {
         padding: 18px;
+        width: calc(100vw - 36px); /* 👈 AGREGAR */
     }
 
     .header-section h2 {
@@ -392,11 +450,12 @@
 
     .filtros-section {
         padding: 20px;
+        max-width: 100%; /* 👈 AGREGAR */
     }
 
     /* Tabla con scroll horizontal pero más compacta */
     .tabla-movimientos {
-        min-width: 850px;
+        width: 1000px; /* 👈 Ancho fijo */
     }
 
         .tabla-movimientos th,
@@ -425,6 +484,7 @@
 @media (max-width: 767px) {
     .movimientos-container {
         padding: 12px;
+        width: calc(100vw - 24px); /* 👈 AGREGAR */
     }
 
     .header-section {
@@ -483,9 +543,7 @@
     }
 
     .tabla-movimientos {
-        /* Ancho mínimo reducido para móvil */
-        min-width: 700px;
-        font-size: 0.8rem;
+        width: 700px; /* 👈 CAMBIAR min-width por width */
     }
 
         /* Encabezados más compactos */
@@ -577,6 +635,7 @@
 @media (max-width: 480px) {
     .movimientos-container {
         padding: 10px;
+        width: calc(100vw - 20px); /* 👈 AGREGAR */
     }
 
     .header-section h2 {
@@ -593,7 +652,7 @@
 
     /* Tabla aún más compacta */
     .tabla-movimientos {
-        min-width: 650px;
+        width: 650px; /* 👈 Cambiar min-width a width */
         font-size: 0.75rem;
     }
 
@@ -664,23 +723,3 @@
         }
 }
 
-/* ✅ Mejora del scroll horizontal en móvil */
-@media (max-width: 767px) {
-    .tabla-container::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .tabla-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .tabla-container::-webkit-scrollbar-thumb {
-        background: #667eea;
-        border-radius: 10px;
-    }
-
-        .tabla-container::-webkit-scrollbar-thumb:hover {
-            background: #5568d3;
-        }
-}

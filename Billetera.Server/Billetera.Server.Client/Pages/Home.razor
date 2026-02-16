@@ -33,7 +33,7 @@
 <nav class="mobile-nav @(showMobileMenu ? "show" : "")">
     <a href="/login" class="nav-link-header">Iniciar Sesión</a>
     <a href="/registro" class="nav-link-header">Registrarse</a>
-    <a href="/sistema/acceso/panel" class="nav-link-header">Admin</a>
+    <a href="/loginadmin" class="nav-link-header">Admin</a>
 </nav>
 
 <!-- Contenido principal -->
@@ -58,6 +58,24 @@
                     <p class="lead mb-4 animate-slide-up" style="font-size: 1.3rem; color: #4a5568; font-weight: 500; animation-delay: 0.1s;">
                         Gestiona tu dinero de forma segura y simple
                     </p>
+
+                    <!-- Botones de acción -->
+                    <div class="hero-buttons animate-slide-up" style="animation-delay: 0.2s;">
+                        <a href="/registro" class="btn-hero btn-hero-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
+                            </svg>
+                            Crear cuenta gratis
+                        </a>
+                        <a href="/login" class="btn-hero btn-hero-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z" />
+                                <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708z" />
+                            </svg>
+                            Iniciar sesión
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -130,7 +148,7 @@
 <TutorialComponent>
     <TutorialContent>
         <h6><strong>Bienvenido a Billetera Digital</strong></h6>
-        <p>Para comenzar a utilizar la billetera virtual, primero debe dirigirse a la sección <strong>“Admin”</strong> e iniciar sesión como administrador.</p>
+        <p>Para comenzar a utilizar la billetera virtual, primero debe dirigirse a la sección <strong>"Admin"</strong> e iniciar sesión como administrador.</p>
         <p>Desde allí podrá crear y gestionar las monedas que desee habilitar para su uso dentro de la plataforma.</p>
         <p>Si ya ingresó a la sección Admin y creó las monedas, puede registrarse como usuario.</p>
     </TutorialContent>
@@ -140,7 +158,7 @@
 
 <style>
     .hero-section {
-        min-height: 35vh;
+        min-height: 45vh;
         display: flex;
         align-items: center;
         position: relative;
@@ -208,6 +226,83 @@
         }
     }
 
+    /* ========== BOTONES HERO ========== */
+    .hero-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 32px;
+    }
+
+    .btn-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-hero svg {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-hero:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+            .btn-hero:hover svg {
+                transform: scale(1.1);
+            }
+
+    .btn-hero-primary {
+        background: linear-gradient(135deg, #E679C6 0%, #D896C6 100%);
+        color: white;
+    }
+
+        .btn-hero-primary:hover {
+            background: linear-gradient(135deg, #D866B3 0%, #C785B3 100%);
+            color: white;
+        }
+
+    .btn-hero-secondary {
+        background: white;
+        color: #E679C6;
+        border: 2px solid #E679C6;
+    }
+
+        .btn-hero-secondary:hover {
+            background: #E679C6;
+            color: white;
+            border-color: #E679C6;
+        }
+
     .feature-card {
         transition: all 0.3s ease;
         border-radius: 15px;
@@ -236,11 +331,30 @@
         }
 
         .hero-section {
-            min-height: 30vh;
+            min-height: 35vh;
         }
 
         .carousel-inner img {
             height: 350px !important;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-hero {
+            width: 100%;
+            justify-content: center;
+            padding: 14px 24px;
+            font-size: 1rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .btn-hero {
+            padding: 12px 20px;
+            font-size: 0.95rem;
         }
     }
 </style>
